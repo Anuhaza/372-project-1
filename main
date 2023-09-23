@@ -1,0 +1,45 @@
+data class MinesweeperSettings(
+    val boardWidth: Int,
+    val boardHeight: Int,
+    val probability: Double
+)
+
+data class Cell(
+    val hasMine: Boolean = false,
+    var isRevealed: Boolean = false,
+    var isFlagged: Boolean = false
+)
+
+class Board(private val settings: MinesweeperSettings) {
+    private val board: Array<Array<Cell>> = Array(settings.boardHeight) {
+        Array(settings.boardWidth) {
+            Cell(hasMine = Math.random() < settings.probability)
+        }
+    }
+
+    private fun minesCount(row: Int, col: Int): Int {
+        var count = 0
+
+        val neighbors = arrayOf(
+            Pair(-1, -1), Pair(-1, 0), Pair(-1, 1),
+            Pair(0, -1), Pair(0, 1), Pair(1, -1),
+            Pair(1, 0), Pair(1, 1)
+        )
+
+        for ((x, y) in neighbors) {
+            val newRow = row + x
+            val newCol = col + y
+
+            if (newRow >= 0 && newRow < settings.boardHeight &&
+                newCol >= 0 && newCol < settings.boardWidth
+            ) {
+                if (board[newRow][newCol].hasMine) {
+                    count++
+                }
+            }
+        }
+
+        return count
+    }
+
+}
