@@ -1,0 +1,118 @@
+package com.example.demo1
+
+class Cell(var isMine: Boolean = false, var isRevealed: Boolean = false, var isFlagged: Boolean = false, var number: Int = 0)
+
+class MinesweeperGrid(val rows: Int, val columns: Int, val mines: Int) {
+    private val grid = Array(rows) { Array(columns) { Cell() } }
+
+    init {
+        placeMines()
+        calculateNumbers()
+    }
+
+    private fun placeMines() {
+        val random = java.util.Random()
+        var minesToPlace = mines
+
+        while (minesToPlace > 0) {
+            val row = random.nextInt(rows)
+            val col = random.nextInt(columns)
+
+            if (!grid[row][col].isMine) {
+                grid[row][col].isMine = true
+                minesToPlace--
+            }
+        }
+    }
+
+    private fun calculateNumbers() {
+        for (row in 0 until rows) {
+            for (col in 0 until columns) {
+                if (!grid[row][col].isMine) {
+                    grid[row][col].number = countAdjacentMines(row, col)
+                }
+            }
+        }
+    }
+
+    private fun countAdjacentMines(row: Int, col: Int): Int {
+        var count = 0
+        for (i in -1..1) {
+            for (j in -1..1) {
+                val newRow = row + i
+                val newCol = col + j
+
+                if (newRow in 0 until rows && newCol in 0 until columns && grid[newRow][newCol].isMine) {
+                    count++
+                }
+            }
+        }
+        return count
+    }
+
+    fun flag(row: Int, col: Int) {
+        val cell = grid[row][col]
+        if (!cell.isRevealed) {
+            cell.isFlagged = !cell.isFlagged
+        }
+    }
+
+    fun reveal(row: Int, col: Int): Boolean {
+        val cell = grid[row][col]
+        if (cell.isRevealed || cell.isFlagged) {
+            return false
+        }
+        cell.isRevealed = true
+
+        if (cell.isMine) {
+            return true
+        } else if (cell.number == 0) {
+            for (i in -1..1) {
+                for (j in -1..1) {
+                    val newRow = row + i
+                    val newCol = col + j
+
+                    if (newRow in 0 until rows && newCol in 0 until columns) {
+                        reveal(newRow, newCol)
+                    }
+                }
+            }
+        }
+        return false
+    }
+
+    fun isGameOver(): Boolean {
+        for (row in 0 until rows) {
+            for (col in 0 until columns) {
+                val cell = grid[row][col]
+                if (!cell.isRevealed && !cell.isMine) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+
+    fun printGrid() {
+        for (row in 0 until rows) {
+            for (col in 0 until columns) {
+                val cell = grid[row][col]
+                print(if (cell.isRevealed) {
+                    if (cell.isMine) "*"
+                    else if (cell.number == 0) " "
+                    else cell.number
+                } else if (cell.isFlagged) {
+                    "F"
+                } else {
+                    "."
+                })
+                print(" ")
+            }
+            println()
+        }
+    }
+
+    fun getCell(row: Int, col: Int): Cell {
+        return grid[row][col]
+    }
+}
