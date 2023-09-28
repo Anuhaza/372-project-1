@@ -1,0 +1,142 @@
+package com.example.demo1
+import javafx.application.Application
+import javafx.scene.Scene
+import javafx.scene.control.Button
+import javafx.scene.control.ToggleButton
+import javafx.scene.layout.GridPane
+import javafx.scene.text.Text
+import javafx.stage.Stage
+import javafx.scene.paint.Color
+
+class MinesweeperGUI : Application() {
+    private val rows = 8
+    private val columns = 8
+    private val mines = 10
+    private val grid = MinesweeperGrid(rows, columns, mines)
+    private var gameOver = false
+    private var isFlaggingMode = false
+
+    override fun start(primaryStage: Stage) {
+        val gridPane = GridPane()
+
+        // Create a toggle switch for flagging mode
+        val flagToggle = ToggleButton("Reveal Mode")
+        flagToggle.selectedProperty().addListener { _, _, newValue ->
+            isFlaggingMode = newValue
+            if (isFlaggingMode) {
+                flagToggle.text = "Flag Mode"
+            } else {
+                flagToggle.text = "Reveal Mode"
+            }
+        }
+
+        flagToggle.style = "-fx-background-color: lightgray; -fx-border-color: gray; -fx-text-fill: black;"
+
+        for (row in 0 until rows) {
+            for (col in 0 until columns) {
+                val button = Button()
+                button.style = "-fx-background-color: linear-gradient(to bottom, #81BEF7, #81D8D0); -fx-text-fill: white; -fx-border-color: #6699CC;"
+                button.prefWidth = 40.0
+                button.prefHeight = 40.0
+                gridPane.add(button, col, row)
+
+                button.setOnAction {
+                    if (!gameOver) {
+                        val rowClicked = GridPane.getRowIndex(button)
+                        val colClicked = GridPane.getColumnIndex(button)
+
+                        if (isFlaggingMode) {
+                            grid.flag(rowClicked, colClicked)
+                            updateAllCellsAppearance(gridPane)
+                        } else {
+                            if (grid.reveal(rowClicked, colClicked)) {
+                                gameOver = true
+                                showGameOverMessage(primaryStage, "You Lose", rowClicked, colClicked)
+                            } else {
+                                updateAllCellsAppearance(gridPane)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        val scene = Scene(gridPane)
+        primaryStage.title = "Minesweeper"
+        primaryStage.scene = scene
+
+        // Add the flagging mode toggle switch
+        val togglePane = GridPane()
+        togglePane.add(flagToggle, 0, 0)
+        togglePane.add(gridPane, 0, 1)
+
+        primaryStage.scene = Scene(togglePane)
+
+        primaryStage.show()
+    }
+
+    private fun showGameOverMessage(primaryStage: Stage, message: String, rowClicked: Int, colClicked: Int) {
+        // First, reveal the mine
+        grid.reveal(rowClicked, colClicked)
+
+        // Then, show the game over message with a white background
+        val gameOverText = Text(message)
+        gameOverText.setStyle("-fx-font-size: 24")
+        val gridPane = GridPane()
+        gridPane.add(gameOverText, 0, 0)
+        GridPane.setConstraints(gameOverText, 0, 0, 1, 1)
+        gridPane.layoutX = 120.0
+        gridPane.layoutY = 120.0
+        gridPane.style = "-fx-background-color: white;" // Set background to white
+        primaryStage.scene.root = gridPane
+    }
+
+    /*private fun updateButtonAppearance(button: Button, cell: Cell) {
+        if (cell.isRevealed) {
+            if (cell.isMine) {
+                button.text = "*"
+            } else if (cell.number > 0) {
+                button.text = cell.number.toString()
+            } else {
+                button.text = ""
+            }
+        } else if (cell.isFlagged) {
+            button.text = "F"
+        } else {
+            button.text = ""
+        }
+    }*/
+
+    private fun updateAllCellsAppearance(gridPane: GridPane) {
+        for (node in gridPane.children) {
+            if (node is Button) {
+                val row = GridPane.getRowIndex(node)
+                val col = GridPane.getColumnIndex(node)
+                val cell = grid.getCell(row, col)
+                if (cell.isRevealed) {
+                    node.isDisable = true
+                    node.style = "-fx-background-color: lightgray;"
+                    if (cell.isMine) {
+                        node.text = "*"
+                    } else if (cell.number > 0) {
+                        node.text = cell.number.toString()
+                    } else {
+                        node.text = ""
+                    }
+                } else if (cell.isFlagged) {
+                    node.text = "F"
+                } else {
+                    node.text = ""
+                }
+            }
+        }
+    }
+
+    fun main() {
+        launch(MinesweeperGUI::class.java)
+    }
+}
+
+fun main() {
+    MinesweeperGUI().main()
+}
