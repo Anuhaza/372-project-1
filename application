@@ -5,6 +5,10 @@ import javafx.scene.control.ToggleButton
 import javafx.scene.layout.GridPane
 import javafx.scene.text.Text
 import javafx.stage.Stage
+import java.util.*
+import java.util.TimerTask
+import java.util.concurrent.TimeUnit
+
 
 class MinesweeperGUI : Application() {
     private var rows = 4
@@ -13,6 +17,11 @@ class MinesweeperGUI : Application() {
     private var grid = MinesweeperGrid(rows, columns, mines)
     private var gameOver = false
     private var isFlaggingMode = false
+    private var min = 1L
+    private var sec = 60L
+    private var totalsec = 120L
+    private var timerDisplay = Text()
+    private val timer = Timer("Timer", true)
 
     override fun start(primaryStage: Stage) {
         val gridPane = GridPane()
@@ -21,6 +30,7 @@ class MinesweeperGUI : Application() {
         easyButton.setOnAction {
             rows = 4
             columns = 4
+            totalsec = 6 * 60
             startGame(primaryStage)
         }
         easyButton.style = "-fx-font: 20px Tahoma; -fx-background-color: lightgray; -fx-border-color: gray; -fx-text-fill: black;"
@@ -29,6 +39,7 @@ class MinesweeperGUI : Application() {
         midButton.setOnAction {
             rows = 8
             columns =8
+            totalsec = 4 * 60
             startGame(primaryStage)
         }
         midButton.style = "-fx-font: 20px Tahoma; -fx-background-color: lightgray; -fx-border-color: gray; -fx-text-fill: black;"
@@ -37,6 +48,7 @@ class MinesweeperGUI : Application() {
         hardButton.setOnAction {
             rows = 12
             columns = 12
+            totalsec = 2 * 60
             startGame(primaryStage)
         }
         hardButton.style = "-fx-font: 20px Tahoma; -fx-background-color: lightgray; -fx-border-color: gray; -fx-text-fill: black;"
@@ -44,8 +56,6 @@ class MinesweeperGUI : Application() {
         var scene = Scene(gridPane)
         primaryStage.title = "Minesweeper - pick difficulty level"
         primaryStage.scene = scene
-
-
 
         val choicesPane = GridPane()
 
@@ -58,14 +68,13 @@ class MinesweeperGUI : Application() {
         choicesPane.add(midButton,2, 0)
         choicesPane.add(hardButton,3, 0)
 
-
-
         primaryStage.scene = Scene(choicesPane)
 
         primaryStage.show()
     }
 
     private fun startGame(primaryStage: Stage) {
+        startTimer(primaryStage)
         val gridPane = GridPane()
         grid = MinesweeperGrid(rows, columns, mines)
         // Create a toggle switch for flagging mode
@@ -116,7 +125,11 @@ class MinesweeperGUI : Application() {
 
         // Add the flagging mode toggle switch
         val togglePane = GridPane()
-        togglePane.add(flagToggle, 0, 0)
+        val topPane = GridPane()
+        timerDisplay.style = "-fx-font: 20px Tahoma; -fx-background-color: lightgray; -fx-border-color: gray; -fx-text-fill: black;"
+        topPane.add(flagToggle, 0, 0)
+        topPane.add(timerDisplay, 1, 0)
+        togglePane.add(topPane, 0,0)
         togglePane.add(gridPane, 0, 1)
 
         primaryStage.scene = Scene(togglePane)
@@ -125,9 +138,31 @@ class MinesweeperGUI : Application() {
     }
 
 
+    private fun convertTime () {
+        min = TimeUnit.SECONDS.toMinutes(totalsec)
+        sec = totalsec - (min * 60)
+        timerDisplay.text = "".plus(min).plus(":").plus(sec)
+        totalsec--
+    }
+
+    private fun startTimer (primaryStage: Stage) {
+        val task = object:TimerTask() {
+            override fun run() {
+                convertTime()
+                if (totalsec < 0) {
+                    showGameOverMessage(primaryStage, "Time up!", 0, 0)
+                }
+            }
+        }
+        timer.schedule(task, 0, 1000)
+    }
+
     private fun showGameOverMessage(primaryStage: Stage, message: String, rowClicked: Int, colClicked: Int) {
         // First, reveal the mine
         grid.reveal(rowClicked, colClicked)
+
+        //cancel the timer when game is over
+        timer.cancel()
 
         // Then, show the game over message with a white background
         val gameOverText = Text(message)
