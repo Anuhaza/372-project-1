@@ -5,19 +5,69 @@ import javafx.scene.control.ToggleButton
 import javafx.scene.layout.GridPane
 import javafx.scene.text.Text
 import javafx.stage.Stage
-import javafx.scene.paint.Color
 
 class MinesweeperGUI : Application() {
-    private val rows = 8
-    private val columns = 8
+    private var rows = 4
+    private var columns = 4
     private val mines = 10
-    private val grid = MinesweeperGrid(rows, columns, mines)
+    private var grid = MinesweeperGrid(rows, columns, mines)
     private var gameOver = false
     private var isFlaggingMode = false
 
     override fun start(primaryStage: Stage) {
         val gridPane = GridPane()
 
+        val easyButton = Button("Easy")
+        easyButton.setOnAction {
+            rows = 4
+            columns = 4
+            startGame(primaryStage)
+        }
+        easyButton.style = "-fx-font: 20px Tahoma; -fx-background-color: lightgray; -fx-border-color: gray; -fx-text-fill: black;"
+
+        val midButton = Button("Medium")
+        midButton.setOnAction {
+            rows = 8
+            columns =8
+            startGame(primaryStage)
+        }
+        midButton.style = "-fx-font: 20px Tahoma; -fx-background-color: lightgray; -fx-border-color: gray; -fx-text-fill: black;"
+
+        val hardButton = Button("Hard")
+        hardButton.setOnAction {
+            rows = 12
+            columns = 12
+            startGame(primaryStage)
+        }
+        hardButton.style = "-fx-font: 20px Tahoma; -fx-background-color: lightgray; -fx-border-color: gray; -fx-text-fill: black;"
+
+        var scene = Scene(gridPane)
+        primaryStage.title = "Minesweeper - pick difficulty level"
+        primaryStage.scene = scene
+
+
+
+        val choicesPane = GridPane()
+
+        val label = Text()
+        label.text = "    Select Difficulty Level:   "
+        label.style = "-fx-font: 20px Tahoma; -fx-background-color: lightgray; -fx-border-color: gray; -fx-text-fill: black;"
+        choicesPane.add(label, 0, 0)
+
+        choicesPane.add(easyButton,1, 0)
+        choicesPane.add(midButton,2, 0)
+        choicesPane.add(hardButton,3, 0)
+
+
+
+        primaryStage.scene = Scene(choicesPane)
+
+        primaryStage.show()
+    }
+
+    private fun startGame(primaryStage: Stage) {
+        val gridPane = GridPane()
+        grid = MinesweeperGrid(rows, columns, mines)
         // Create a toggle switch for flagging mode
         val flagToggle = ToggleButton("Reveal Mode")
         flagToggle.selectedProperty().addListener { _, _, newValue ->
@@ -74,6 +124,7 @@ class MinesweeperGUI : Application() {
         primaryStage.show()
     }
 
+
     private fun showGameOverMessage(primaryStage: Stage, message: String, rowClicked: Int, colClicked: Int) {
         // First, reveal the mine
         grid.reveal(rowClicked, colClicked)
@@ -90,6 +141,37 @@ class MinesweeperGUI : Application() {
         primaryStage.scene.root = gridPane
     }
 
+    private fun showGameGrid(gridPane: GridPane, primaryStage: Stage) {
+
+        for (row in 0 until rows) {
+            for (col in 0 until columns) {
+                val button = Button()
+                button.style = "-fx-background-color: linear-gradient(to bottom, #81BEF7, #81D8D0); -fx-text-fill: white; -fx-border-color: #6699CC;"
+                button.prefWidth = 40.0
+                button.prefHeight = 40.0
+                gridPane.add(button, col, row)
+
+                button.setOnAction {
+                    if (!gameOver) {
+                        val rowClicked = GridPane.getRowIndex(button)
+                        val colClicked = GridPane.getColumnIndex(button)
+
+                        if (isFlaggingMode) {
+                            grid.flag(rowClicked, colClicked)
+                            updateAllCellsAppearance(gridPane)
+                        } else {
+                            if (grid.reveal(rowClicked, colClicked)) {
+                                gameOver = true
+                                showGameOverMessage(primaryStage, "You Lose", rowClicked, colClicked)
+                            } else {
+                                updateAllCellsAppearance(gridPane)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     /*private fun updateButtonAppearance(button: Button, cell: Cell) {
         if (cell.isRevealed) {
             if (cell.isMine) {
