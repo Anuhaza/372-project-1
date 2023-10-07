@@ -1,13 +1,44 @@
+/**
+ * Authors: Anupama Hazarika
+ * Course: CSC 372
+ * This Minesweeper model implementation consists of two main classes: Cell and MinesweeperGrid.
+ * Cell represents a single cell in the game grid, with attributes to track its status and content.
+ * MinesweeperGrid represents the grid, dealing with mine placement, number calculations, and player interactions.
+ * The grid is initialized with the specified number of rows, columns, and mines. This program handles
+ * the base logic for the game.
+ */
+
+/**
+ * Represents a single cell in the Minesweeper game grid.
+ *
+ * @param isMine Represents whether the cell contains a mine or not.
+ * @param isRevealed Represents whether the cell has been revealed or not.
+ * @param isFlagged Represents whether the cell has been flagged by the player or not.
+ * @param number The number of adjacent mines to this cell, ranging from 0 to 8.
+ */
 class Cell(var isMine: Boolean = false, var isRevealed: Boolean = false, var isFlagged: Boolean = false, var number: Int = 0)
 
+/**
+ * Represents the Minesweeper game grid with the specified number of rows, columns, and mines.
+ *
+ * @param rows The number of rows in the grid.
+ * @param columns The number of columns in the grid.
+ * @param mines The number of mines to be placed on the grid.
+ */
 class MinesweeperGrid(val rows: Int, val columns: Int, val mines: Int) {
-    private val grid = Array(rows) { Array(columns) { Cell() } }
+    private val grid = Array(rows) { Array(columns) { Cell() } } //initializes the dimensions of the grid.
 
+    /**
+     * Initializes the Minesweeper grid by placing mines and calculating numbers for adjacent cells.
+     */
     init {
         placeMines()
         calculateNumbers()
     }
 
+    /**
+     * Places mines on the grid using random coordinates.
+     */
     private fun placeMines() {
         val random = java.util.Random()
         var minesToPlace = mines
@@ -23,6 +54,10 @@ class MinesweeperGrid(val rows: Int, val columns: Int, val mines: Int) {
         }
     }
 
+    /**
+     * Calculates the number of adjacent mines for each cell on the grid if they
+     * themselves don't have a mine.
+     */
     private fun calculateNumbers() {
         for (row in 0 until rows) {
             for (col in 0 until columns) {
@@ -33,6 +68,13 @@ class MinesweeperGrid(val rows: Int, val columns: Int, val mines: Int) {
         }
     }
 
+    /**
+     * Counts the number of adjacent mines for a given cell.
+     *
+     * @param row The row index of the cell.
+     * @param col The column index of the cell.
+     * @return The number of adjacent mines to the cell.
+     */
     private fun countAdjacentMines(row: Int, col: Int): Int {
         var count = 0
         for (i in -1..1) {
@@ -48,6 +90,13 @@ class MinesweeperGrid(val rows: Int, val columns: Int, val mines: Int) {
         return count
     }
 
+    /**
+     * Changes the flag status of the cell at the specified row and column
+     * based on what the player does.
+     *
+     * @param row The row index of the cell.
+     * @param col The column index of the cell.
+     */
     fun flag(row: Int, col: Int) {
         val cell = grid[row][col]
         if (!cell.isRevealed) {
@@ -55,6 +104,13 @@ class MinesweeperGrid(val rows: Int, val columns: Int, val mines: Int) {
         }
     }
 
+    /**
+     * Reveals the cell at the specified row and column, returning whether a mine was revealed or not.
+     *
+     * @param row The row index of the cell.
+     * @param col The column index of the cell.
+     * @return true if a mine was revealed, false otherwise.
+     */
     fun reveal(row: Int, col: Int): Boolean {
         val cell = grid[row][col]
         if (cell.isRevealed || cell.isFlagged) {
@@ -64,7 +120,7 @@ class MinesweeperGrid(val rows: Int, val columns: Int, val mines: Int) {
 
         if (cell.isMine) {
             return true
-        } else if (cell.number == 0) {
+        } else if (cell.number == 0) { //Recursively reveal other cells until none are zero.
             for (i in -1..1) {
                 for (j in -1..1) {
                     val newRow = row + i
@@ -79,6 +135,12 @@ class MinesweeperGrid(val rows: Int, val columns: Int, val mines: Int) {
         return false
     }
 
+    /**
+     * Checks if the game is over depending on whether all non-mine
+     * cells have been revealed.
+     *
+     * @return true if the game is over, false otherwise.
+     */
     fun isGameOver(): Boolean {
         for (row in 0 until rows) {
             for (col in 0 until columns) {
@@ -91,6 +153,9 @@ class MinesweeperGrid(val rows: Int, val columns: Int, val mines: Int) {
         return true
     }
 
+    /**
+     * Prints the terminal version of the grid.
+     */
     fun printGrid() {
         for (row in 0 until rows) {
             for (col in 0 until columns) {
@@ -110,6 +175,13 @@ class MinesweeperGrid(val rows: Int, val columns: Int, val mines: Int) {
         }
     }
 
+    /**
+     * Returns the cell at a specified row and column.
+     *
+     * @param row The row index of the cell.
+     * @param col The column index of the cell.
+     * @return The Cell object representing the cell at the specified position.
+     */
     fun getCell(row: Int, col: Int): Cell {
         return grid[row][col]
     }
