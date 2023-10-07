@@ -1,3 +1,10 @@
+/**
+ * Authors: Anupama Hazarika, Anisha Munjal
+ * Course: CSC 372
+ *
+ * This creates the application GUI for the Game
+ */
+
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.control.Button
@@ -23,6 +30,18 @@ class MinesweeperGUI : Application() {
     private var timerDisplay = Text()
     private val timer = Timer("Timer", true)
 
+    /**
+     * start method is overridden from Application class to start the game.
+     * It creats the initial selection window for user to make a choice
+     * of difficulty level they want to play.
+     *
+     * If user selects "Easy", the grid size is set to 4x4 and user is given 6 minutes to play.
+     * If user select "Medium", the grid size is set to 8x8 and user is given 4 minutes to play.
+     * If user select "Hard", the grid size is set to 12x12 and user is given 2 minutes to play.
+     *
+     * @param primaryStage the Stage object used to create the game
+     *
+     */
     override fun start(primaryStage: Stage) {
         val gridPane = GridPane()
 
@@ -73,6 +92,12 @@ class MinesweeperGUI : Application() {
         primaryStage.show()
     }
 
+    /**
+     * This method is called to start the game after user has picked their difficulty level
+     * It draws the game grid based on difficulty selection made by user
+     *
+     * @param primaryStage the Stage class to use to display the game GUI
+     */
     private fun startGame(primaryStage: Stage) {
         startTimer(primaryStage)
         val gridPane = GridPane()
@@ -137,7 +162,10 @@ class MinesweeperGUI : Application() {
         primaryStage.show()
     }
 
-
+    /**
+     * Converts the total remaining seconds left for user to continue playing to minutes:second format.
+     * The remaining time is updated and displayed on the timer display text on the game window.
+     */
     private fun convertTime () {
         min = TimeUnit.SECONDS.toMinutes(totalsec)
         sec = totalsec - (min * 60)
@@ -145,6 +173,11 @@ class MinesweeperGUI : Application() {
         totalsec--
     }
 
+    /**
+     * Starts a count down timer task that runs every one second.
+     *
+     * @param primaryStage the Stage class to use to display the game GUI
+     */
     private fun startTimer (primaryStage: Stage) {
         val task = object:TimerTask() {
             override fun run() {
@@ -157,6 +190,14 @@ class MinesweeperGUI : Application() {
         timer.schedule(task, 0, 1000)
     }
 
+    /**
+     * Shows the message to the user once game is over
+     *
+     * @param primaryStage The Stage class to use to display the game GUI
+     * @param message The message to display
+     * @param rowClicked The row number clicked by user
+     * @param colClicked The column number clicked by user
+     */
     private fun showGameOverMessage(primaryStage: Stage, message: String, rowClicked: Int, colClicked: Int) {
         // First, reveal the mine
         grid.reveal(rowClicked, colClicked)
@@ -176,6 +217,12 @@ class MinesweeperGUI : Application() {
         primaryStage.scene.root = gridPane
     }
 
+    /**
+     * Draws and displays the game grid
+     *
+     * @param gridPane The GridPane class to place GUI components
+     * @param primaryStage The Stage class to use to display the game GUI
+     */
     private fun showGameGrid(gridPane: GridPane, primaryStage: Stage) {
 
         for (row in 0 until rows) {
@@ -223,6 +270,11 @@ class MinesweeperGUI : Application() {
         }
     }*/
 
+    /**
+     * Updates the cell appearance of all the cells based on which cell gets clicked by user.
+     *
+     * @param gridPane The GridPane class to place GUI components
+     */
     private fun updateAllCellsAppearance(gridPane: GridPane) {
         for (node in gridPane.children) {
             if (node is Button) {
