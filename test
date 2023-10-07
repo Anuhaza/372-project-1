@@ -1,10 +1,14 @@
-package com.example.demo1
-
 import org.junit.Test
 import org.junit.Assert.*
 
+/**
+ * This class tests the functionality of the MinesweeperGrid class. It tests whether
+ * a particular cell does get flagged, correctly returns whether it has a mine or 
+ * not, whether it has been revealed by a user or not, and whether the game is over or not.
+ */
 class MinesweeperGridTest {
     @Test
+    //Test to check whether a cell is correctly returned as flagged or not.
     fun testFlag() {
         val grid = MinesweeperGrid(8, 8, 10)
         assertFalse(grid.getCell(0, 0).isFlagged)
@@ -13,6 +17,8 @@ class MinesweeperGridTest {
     }
 
     @Test
+    //Test to check whether a cell correctly returns whether there is a mine
+    //in it or not.
     fun testRevealMine() {
         val grid = MinesweeperGrid(8, 8, 10)
         val row = 0
@@ -22,6 +28,8 @@ class MinesweeperGridTest {
     }
 
     @Test
+    //Test to check whether a cell returns as correctly empty and returns
+    //its reveal status.
     fun testRevealEmptyCell() {
         val grid = MinesweeperGrid(8, 8, 0)
         val row = 0
@@ -32,15 +40,20 @@ class MinesweeperGridTest {
     }
 
     @Test
+    //Test to check that the game is not over because no cells have been
+    //revealed.
     fun testGameIsNotOver() {
         val grid = MinesweeperGrid(8, 8, 10)
         assertFalse(grid.isGameOver())
     }
 
     @Test
+    //Test to check if the game is over based on recursive revealing of
+    //all non-mine cells since the first click is a zero cell and there
+    //are no mines in the grid.
     fun testGameIsOver() {
-        val grid = MinesweeperGrid(8, 8, 0) // No mines
-        grid.reveal(0, 0) // Reveal the first cell
+        val grid = MinesweeperGrid(8, 8, 0)
+        grid.reveal(0, 0)
         assertTrue(grid.isGameOver())
     }
 }
