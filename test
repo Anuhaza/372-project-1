@@ -1,3 +1,9 @@
+/**
+ * Authors: Anupama Hazarika
+ * Course: CSC 372
+ * This program tests the basic methods of the underlying class.
+ */
+
 import org.junit.Test
 import org.junit.Assert.*
 
