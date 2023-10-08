@@ -169,7 +169,7 @@ class MinesweeperGUI : Application() {
     private fun convertTime () {
         min = TimeUnit.SECONDS.toMinutes(totalsec)
         sec = totalsec - (min * 60)
-        timerDisplay.text = "".plus(min).plus(":").plus(sec)
+        timerDisplay.text = "  ".plus(min).plus(":").plus(sec)
         totalsec--
     }
 
