@@ -2,7 +2,7 @@
  * Authors: Anupama Hazarika, Anisha Munjal
  * Course: CSC 372
  *
- * This creates the application GUI for the Game
+ * This creates the application GUI for the minesweeper game.
  */
 
 import javafx.application.Application
